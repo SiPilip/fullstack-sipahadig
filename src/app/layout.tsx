@@ -1,12 +1,9 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
-import Navbar from "./components/navbar";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import AppSidebar from "./components/sidebar";
 
 const poppins = Poppins({
-  weight: ["400", "700"], // Specify desired weights
+  weight: ["200", "300", "400", "700"], // Specify desired weights
   subsets: ["latin"], // Specify desired subsets
   variable: "--font-poppins", // Assign a CSS variable name
   display: "swap", // Recommended for font loading optimization
@@ -24,15 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${poppins.variable} antialiased`}>
-        <SidebarProvider>
-          <AppSidebar />
-          <SidebarInset>
-            <Navbar />
-            <div className="px-5">{children}</div>
-          </SidebarInset>
-        </SidebarProvider>
-      </body>
+      <body className={`${poppins.variable} antialiased`}>{children}</body>
     </html>
   );
 }

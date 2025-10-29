@@ -1,0 +1,47 @@
+Tentu, berikut adalah rangkuman permintaan klien (Dewi) dalam format daftar bernomor:
+
+Buat sebuah sistem arsip internal untuk mengelola data pegawai yang terkena Hukuman Disiplin (Hukdis).
+
+Web ini bersifat internal (tidak untuk publik). Seluruh fitur (melihat arsip, input data, laporan) hanya bisa diakses oleh satu peran (role): Administrator.
+
+Web akan dihosting dengan hosting yang ada node-js
+
+Tampilan visual dan layout halaman utama (Home) harus dibuat semirip mungkin dengan referensi Wix yang diberikan: https://sipahadigbengkulu.wixsite.com/sipahadigiiabengkulu
+
+Di halaman Home, 5 tombol bagian atas difungsikan sebagai link statis yang langsung mengarah ke folder/file di Google Drive.
+
+Di halaman Home, 3 tombol bagian bawah (SK BAP Ringan, Sedang, Berat) difungsikan untuk mengarah ke fitur sistem pengelolaan arsip (CRUD).
+
+Buat sistem CRUD (Create, Read, Update, Delete) untuk mengelola data Arsip SK BAP.
+
+Sistem Arsip (CRUD) harus memiliki tabel data yang menampilkan kolom:
+
+Nama Pegawai
+
+Tanggal Mulai Hukuman
+
+Tanggal Akhir Hukuman
+
+Keterangan Hukdis (Ringan, Sedang, Berat)
+
+Berkas (Link ke file PDF SK)
+
+Sediakan tombol Edit, Delete, dan Detail untuk setiap data di dalam tabel arsip.
+
+File PDF (SK) tetap disimpan di Google Drive. Sistem web hanya menyimpan metadata (Nama, Tgl, dll) dan link ke file GDrive tersebut.
+
+Saat admin mengklik "Detail", file PDF harus bisa ditampilkan/dilihat di dalam web (tidak hanya di-download).
+
+Buat satu halaman tambahan bernama "Dashboard Pegawai Hukdis" (sebagai laporan aktif).
+
+Halaman "Dashboard Pegawai Hukdis" ini hanya menampilkan daftar pegawai yang sedang aktif menjalani hukuman.
+
+Berikan kode warna pada data di "Dashboard Pegawai Hukdis" berdasarkan keterangan (Contoh: Hijau=Ringan, Kuning=Sedang, Merah=Berat).
+
+(Akan ada tambahan fitur "sedikit" dari klien untuk halaman "Dashboard Pegawai Hukdis" yang detailnya akan menyusul).
+
+Logika Otomatisasi (PENTING): Halaman "Dashboard Pegawai Hukdis" (poin 13) harus terhubung dengan "Sistem Arsip SK BAP" (poin 8).
+
+Logika 1 (Penambahan): Saat Admin meng-input data arsip baru (poin 8), data pegawai tersebut harus otomatis muncul di "Dashboard Pegawai Hukdis" (poin 13).
+
+Logika 2 (Penghapusan Otomatis): Saat tanggal hari ini telah melewati "Tanggal Akhir Hukuman" seorang pegawai, data pegawai tersebut harus otomatis hilang dari "Dashboard Pegawai Hukdis" (namun datanya tetap ada di sistem arsip utama).
