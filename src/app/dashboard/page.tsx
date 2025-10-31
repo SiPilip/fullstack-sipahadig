@@ -34,6 +34,20 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 
+function SkeletonRow() {
+  return (
+    <tr className="border-b">
+      {Array(6)
+        .fill(0)
+        .map((_, i) => (
+          <td key={i} className="px-4 py-2">
+            <Skeleton className="h-5 w-full" />
+          </td>
+        ))}
+    </tr>
+  );
+}
+
 type SortConfig = {
   key: keyof ArsipHukdis;
   direction: "ascending" | "descending";
@@ -55,18 +69,6 @@ export default function DashboardPage() {
   );
   const [itemToDelete, setItemToDelete] = useState<ArsipHukdis | null>(null);
 
-  const SkeletonRow = () => (
-    <tr className="border-b">
-      {Array(6)
-        .fill(0)
-        .map((_, i) => (
-          <td key={i} className="px-4 py-2">
-            <Skeleton className="h-5 w-full" />
-          </td>
-        ))}
-    </tr>
-  );
-
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
@@ -87,7 +89,10 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    fetchData();
+    const timeoutId = setTimeout(() => {
+      void fetchData();
+    }, 0);
+    return () => clearTimeout(timeoutId);
   }, []);
 
   const kpi = useMemo(() => {
@@ -161,7 +166,7 @@ export default function DashboardPage() {
         const data = await res.json();
         toast.error(data.error || "Gagal menghapus data.", { id: toastId });
       }
-    } catch (error) {
+    } catch {
       toast.error("Tidak dapat terhubung ke server.", { id: toastId });
     }
     setItemToDelete(null);
