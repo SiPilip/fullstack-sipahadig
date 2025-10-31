@@ -1,16 +1,17 @@
 import { NextResponse, NextRequest } from 'next/server';
 import oauth2Client from '@/lib/google';
-import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
+import { PrismaClient } from '@prisma/client';
 
-// This is a simplified version. In production, you'd want to handle token storage securely.
-async function getVerifiedPayload(request: NextRequest) {
+const prisma = new PrismaClient();
+
+async function getUserIdFromToken(request: NextRequest): Promise<number | null> {
     const token = request.cookies.get('sipahadig-token')?.value;
     if (!token) return null;
     try {
         const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'your-default-secret-key');
         const { payload } = await jwtVerify(token, secret);
-        return payload as { email: string, id: number };
+        return (payload as { id: number }).id;
     } catch (err) {
         return null;
     }
@@ -21,22 +22,32 @@ export async function GET(request: NextRequest) {
   const code = url.searchParams.get('code');
 
   if (!code) {
-    return NextResponse.redirect(new URL('/dashboard?error=google_auth_failed', request.url));
+    return NextResponse.redirect(new URL('/dashboard/dokumen/pengaturan?error=auth_failed', request.url));
   }
 
   try {
-    const { tokens } = await oauth2Client.getToken(code);
-    // In a real app, you would associate these tokens with the logged-in user in your database.
-    // For now, we'll store the refresh token (if available) in a new JWT or session.
-    // This is a simplified flow.
-    console.log('Google Tokens Acquired:', tokens);
+    const userId = await getUserIdFromToken(request);
+    if (!userId) {
+        return NextResponse.redirect(new URL('/login?error=session_expired', request.url));
+    }
 
-    // For simplicity, we'll just redirect to a success page.
-    // A real implementation would store the tokens securely.
-    return NextResponse.redirect(new URL('/dashboard/dokumen/pengaturan?status=google-auth-success', request.url));
+    const { tokens } = await oauth2Client.getToken(code);
+    const refreshToken = tokens.refresh_token;
+
+    if (refreshToken) {
+        await prisma.user.update({
+            where: { id: userId },
+            data: { googleRefreshToken: refreshToken },
+        });
+        return NextResponse.redirect(new URL('/dashboard/dokumen/pengaturan?status=google-auth-success', request.url));
+    } else {
+        // This happens on re-authentication if a refresh token was already issued.
+        // We can just consider it a success.
+        return NextResponse.redirect(new URL('/dashboard/dokumen/pengaturan?status=google-reauth-success', request.url));
+    }
 
   } catch (error) {
-    console.error('Error acquiring Google tokens', error);
-    return NextResponse.redirect(new URL('/dashboard?error=google_token_exchange_failed', request.url));
+    console.error('Error during Google token exchange', error);
+    return NextResponse.redirect(new URL('/dashboard/dokumen/pengaturan?error=token_exchange_failed', request.url));
   }
 }

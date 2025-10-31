@@ -1,16 +1,19 @@
-import prisma from '@/lib/prisma';
-import { NextResponse } from 'next/server';
-import { arsipHukdisSchema } from '@/lib/schemas';
+import prisma from "@/lib/prisma";
+import { NextResponse } from "next/server";
+import { arsipHukdisSchema } from "@/lib/schemas";
 
 // Common function to get ID, handles potential promise
 async function getIdFromParams(params: any): Promise<string> {
-    // In some Next.js versions, params can be a promise.
-    // This check is for robustness.
-    const resolvedParams = await Promise.resolve(params);
-    return resolvedParams.id;
+  // In some Next.js versions, params can be a promise.
+  // This check is for robustness.
+  const resolvedParams = await Promise.resolve(params);
+  return resolvedParams.id;
 }
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
     const id = await getIdFromParams(params);
     const arsip = await prisma.arsipHukdis.findUnique({
@@ -18,31 +21,44 @@ export async function GET(request: Request, { params }: { params: { id: string }
     });
 
     if (!arsip) {
-      return NextResponse.json({ error: 'Arsip not found' }, { status: 404 });
+      return NextResponse.json({ error: "Arsip not found" }, { status: 404 });
     }
 
     return NextResponse.json(arsip);
   } catch (error: any) {
-    return NextResponse.json({ error: `An error occurred while fetching data: ${error.message}` }, { status: 500 });
+    return NextResponse.json(
+      { error: `An error occurred while fetching data: ${error.message}` },
+      { status: 500 }
+    );
   }
 }
 
-import { arsipHukdisSchema } from '@/lib/schemas';
-
 // ... (existing helper and GET function)
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
     const id = await getIdFromParams(params);
     const body = await request.json();
     const validation = arsipHukdisSchema.safeParse(body);
 
     if (!validation.success) {
-      const errorMessages = validation.error.errors.map(e => e.message).join(', ');
+      const errorMessages = validation.error.errors
+        .map((e) => e.message)
+        .join(", ");
       return NextResponse.json({ error: errorMessages }, { status: 400 });
     }
 
-    const { namaPegawai, nip, tanggalMulaiHukuman, tanggalAkhirHukuman, keteranganHukdis, berkas } = validation.data;
+    const {
+      namaPegawai,
+      nip,
+      tanggalMulaiHukuman,
+      tanggalAkhirHukuman,
+      keteranganHukdis,
+      berkas,
+    } = validation.data;
 
     const updatedArsip = await prisma.arsipHukdis.update({
       where: { id: Number(id) },
@@ -58,18 +74,27 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
     return NextResponse.json(updatedArsip);
   } catch (error: any) {
-    return NextResponse.json({ error: `An error occurred while updating data: ${error.message}` }, { status: 500 });
+    return NextResponse.json(
+      { error: `An error occurred while updating data: ${error.message}` },
+      { status: 500 }
+    );
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
     const id = await getIdFromParams(params);
     console.log("--- DELETE Request Received ---");
     console.log("Attempting to delete ID:", id);
 
     if (!id) {
-        return NextResponse.json({ error: "ID is missing from parameters." }, { status: 400 });
+      return NextResponse.json(
+        { error: "ID is missing from parameters." },
+        { status: 400 }
+      );
     }
 
     await prisma.arsipHukdis.delete({
@@ -79,6 +104,9 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     return new Response(null, { status: 204 });
   } catch (error: any) {
     console.error("DELETE_ERROR", error);
-    return NextResponse.json({ error: `An error occurred while deleting data: ${error.message}` }, { status: 500 });
+    return NextResponse.json(
+      { error: `An error occurred while deleting data: ${error.message}` },
+      { status: 500 }
+    );
   }
 }

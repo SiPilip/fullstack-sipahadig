@@ -1,8 +1,6 @@
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
 import { arsipHukdisSchema } from '@/lib/schemas';
-
-const prisma = new PrismaClient();
 
 export async function GET(request: Request) {
   console.log("\n--- GET /api/arsip CALLED ---");

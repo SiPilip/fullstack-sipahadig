@@ -10,6 +10,7 @@ const oauth2Client = new google.auth.OAuth2(
 
 export const scopes = [
   'https://www.googleapis.com/auth/drive.readonly',
+  'https://www.googleapis.com/auth/drive.file',
 ];
 
 export const getGoogleAuthUrl = () => {

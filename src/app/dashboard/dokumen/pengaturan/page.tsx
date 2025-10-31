@@ -1,33 +1,41 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import toast from 'react-hot-toast';
 import { KategoriDokumen } from '@prisma/client';
+import { CheckCircle, XCircle, LogOut } from 'lucide-react';
 
 export default function PengaturanDokumenPage() {
   const [kategori, setKategori] = useState<KategoriDokumen[]>([]);
+  const [googleStatus, setGoogleStatus] = useState<{ isConnected: boolean; email?: string }>({ isConnected: false });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchKategori = async () => {
-      try {
-        const res = await fetch('/api/dokumen/kategori');
-        const data = await res.json();
-        if (res.ok) {
-          setKategori(data);
-        } else {
-          toast.error(data.error || 'Gagal memuat kategori.');
-        }
-      } catch (err) {
-        toast.error('Gagal terhubung ke server.');
+  const fetchStatus = useCallback(async () => {
+    try {
+      const statusRes = await fetch('/api/auth/google/status');
+      const statusData = await statusRes.json();
+      setGoogleStatus(statusData);
+
+      const kategoriRes = await fetch('/api/dokumen/kategori');
+      const kategoriData = await kategoriRes.json();
+      if (kategoriRes.ok) {
+        setKategori(kategoriData);
+      } else {
+        toast.error(kategoriData.error || 'Gagal memuat kategori.');
       }
+    } catch (err) {
+      toast.error('Gagal mengambil data pengaturan.');
+    } finally {
       setLoading(false);
-    };
-    fetchKategori();
+    }
   }, []);
+
+  useEffect(() => {
+    fetchStatus();
+  }, [fetchStatus]);
 
   const handleFolderIdChange = (id: number, folderId: string) => {
     setKategori(kategori.map(k => k.id === id ? { ...k, folderId } : k));
@@ -36,7 +44,7 @@ export default function PengaturanDokumenPage() {
   const handleSave = async (k: KategoriDokumen) => {
     const toastId = toast.loading(`Menyimpan ${k.nama}...`);
     try {
-        const res = await fetch(`/api/dokumen/kategori`, { // Simplified POST
+        const res = await fetch(`/api/dokumen/kategori`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id: k.id, folderId: k.folderId }),
@@ -52,18 +60,51 @@ export default function PengaturanDokumenPage() {
     }
   };
 
+  const handleDisconnect = async () => {
+    const toastId = toast.loading('Memutuskan hubungan...');
+    try {
+        const res = await fetch('/api/auth/google/disconnect', { method: 'POST' });
+        if (res.ok) {
+            toast.success('Hubungan akun Google berhasil diputus.', { id: toastId });
+            fetchStatus(); // Refresh status
+        } else {
+            toast.error('Gagal memutuskan hubungan.', { id: toastId });
+        }
+    } catch (err) {
+        toast.error('Gagal terhubung ke server.', { id: toastId });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Pengaturan Google Drive</CardTitle>
-          <CardDescription>Hubungkan akun Google Anda dan tautkan ID folder untuk setiap kategori dokumen.</CardDescription>
+          <CardDescription>Hubungkan atau putuskan akun Google Anda untuk integrasi Google Drive.</CardDescription>
         </CardHeader>
         <CardContent>
-          <a href="/api/auth/google/authorize">
-            <Button>Hubungkan Akun Google</Button>
-          </a>
-          <p className="text-xs text-muted-foreground mt-2">Anda mungkin perlu menghubungkan ulang jika sesi berakhir.</p>
+          {loading ? <p>Memeriksa status...</p> : (
+            googleStatus.isConnected ? (
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 text-green-600">
+                  <CheckCircle className="h-5 w-5" />
+                  <p>Terhubung sebagai: <strong>{googleStatus.email}</strong></p>
+                </div>
+                <Button variant="destructive" size="sm" onClick={handleDisconnect}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Putuskan Hubungan
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-red-600">
+                <XCircle className="h-5 w-5" />
+                <p>Status: <strong>Tidak Terhubung</strong></p>
+                <a href="/api/auth/google/authorize">
+                  <Button>Hubungkan Akun Google</Button>
+                </a>
+              </div>
+            )
+          )}
         </CardContent>
       </Card>
 
