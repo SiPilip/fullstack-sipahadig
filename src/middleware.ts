@@ -1,12 +1,17 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { jwtVerify } from 'jose'; // Using jose for Edge-compatible JWT verification
+import { jwtVerify } from 'jose';
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'your-default-secret-key');
 
 export async function middleware(request: NextRequest) {
   const tokenCookie = request.cookies.get('sipahadig-token');
   const { pathname } = request.nextUrl;
+
+  // New rule: Redirect root path to /login
+  if (pathname === '/') {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
 
   let isLoggedIn = false;
 
@@ -15,26 +20,21 @@ export async function middleware(request: NextRequest) {
       await jwtVerify(tokenCookie.value, secret);
       isLoggedIn = true;
     } catch (err) {
-      // Token is invalid
       isLoggedIn = false;
     }
   }
 
   if (!isLoggedIn && pathname.startsWith('/dashboard')) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/login';
-    return NextResponse.redirect(url);
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
   if (isLoggedIn && pathname.startsWith('/login')) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/dashboard';
-    return NextResponse.redirect(url);
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/login'],
+  matcher: ['/dashboard/:path*', '/login', '/'], // Add root path to the matcher
 };

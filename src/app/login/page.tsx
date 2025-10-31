@@ -1,4 +1,10 @@
 import { LoginForm } from "@/app/components/auth/login-form";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "LOGIN - SIPAHADIG BENGKULU",
+  description: "Sistem Pengelolaan Arsip Lapas II Bengkulu",
+};
 
 export default function page() {
   return (

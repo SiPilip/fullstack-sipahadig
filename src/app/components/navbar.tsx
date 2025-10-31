@@ -19,7 +19,7 @@ export default function Navbar() {
             </div>
           ))}
         </div>
-        <div className="text-2xl font-bold">SIPAHADIG</div>
+        <div className="text-2xl font-bold">SIPAHADIG LAPAS II BENGKULU</div>
       </div>
     </nav>
   );
