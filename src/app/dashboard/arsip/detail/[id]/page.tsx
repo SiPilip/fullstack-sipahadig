@@ -38,7 +38,7 @@ export default function DetailArsipPage() {
     return <p>Arsip not found.</p>;
   }
 
-  const pdfUrl = `https://docs.google.com/gview?url=${arsip.berkas}&embedded=true`;
+  const pdfUrl = arsip.berkas; // The URL from DB is now a direct preview link
 
   return (
     <Card>
@@ -46,7 +46,7 @@ export default function DetailArsipPage() {
         <CardTitle>Detail Arsip: {arsip.namaPegawai}</CardTitle>
       </CardHeader>
       <CardContent>
-        <iframe src={pdfUrl} style={{ width: '100%', height: '80vh' }} />
+        <iframe src={pdfUrl} style={{ width: '100%', height: '80vh' }} frameBorder="0" />
       </CardContent>
     </Card>
   );

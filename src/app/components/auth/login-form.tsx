@@ -67,7 +67,8 @@ export function LoginForm({
       <Card className="z-50">
         <CardHeader>
           <CardTitle className="leading-4 text-lg">
-            Anda memasuki Pengelolaan Arsip <br /> LAPAS II Bengkulu
+            Anda memasuki Sistem Pengelolaan Arsip Lembaga Pemasyarakatan
+            Kelas IIA Bengkulu
           </CardTitle>
           <CardDescription>
             Harap masukkan identitas autoritas anda!

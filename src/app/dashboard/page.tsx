@@ -43,7 +43,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const [arsipAktif, setArsipAktif] = useState<ArsipHukdis[]>([]);
   const [arsipSelesai, setArsipSelesai] = useState<ArsipHukdis[]>([]);
-  const [loading, setLoading] = useState(true);
+
   const [activeTab, setActiveTab] = useState<"aktif" | "selesai">("aktif");
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState<SortConfig | null>({
@@ -54,6 +54,20 @@ export default function DashboardPage() {
     null
   );
   const [itemToDelete, setItemToDelete] = useState<ArsipHukdis | null>(null);
+
+  const SkeletonRow = () => (
+    <tr className="border-b">
+      {Array(6)
+        .fill(0)
+        .map((_, i) => (
+          <td key={i} className="px-4 py-2">
+            <Skeleton className="h-5 w-full" />
+          </td>
+        ))}
+    </tr>
+  );
+
+  const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
     // No setLoading(true) here to avoid flashing on manual refresh
@@ -67,7 +81,7 @@ export default function DashboardPage() {
       setArsipAktif(Array.isArray(dataAktif) ? dataAktif : []);
       setArsipSelesai(Array.isArray(dataSelesai) ? dataSelesai : []);
     } catch (error) {
-      toast.error("Gagal memuat data dashboard.");
+      toast.error("Gagal memuat data dashboard." + error);
     }
     setLoading(false);
   };
@@ -193,23 +207,33 @@ export default function DashboardPage() {
     document.body.removeChild(link);
   };
 
+  const getViewerUrl = (rawUrl: string | null | undefined) => {
+    if (!rawUrl) return "";
+    const url = rawUrl.trim();
+    const encoded = encodeURIComponent(url);
+
+    if (url.includes("drive.google.com")) {
+      const idFromD = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+      const idFromQuery = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+      const fileId = idFromD?.[1] || idFromQuery?.[1];
+      if (fileId) {
+        return `https://drive.google.com/file/d/${fileId}/preview`;
+      }
+      return `https://drive.google.com/viewerng/viewer?embedded=true&url=${encoded}`;
+    }
+
+    if (/\.pdf($|\?)/i.test(url)) {
+      return `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encoded}`;
+    }
+
+    return `https://docs.google.com/gview?embedded=true&url=${encoded}`;
+  };
+
   const renderSortArrow = (key: keyof ArsipHukdis) => {
     if (sortConfig?.key !== key)
       return <ArrowUpDown className="h-3 w-3 ml-2 opacity-30" />;
     return sortConfig.direction === "ascending" ? "▲" : "▼";
   };
-
-  const SkeletonRow = () => (
-    <tr className="border-b">
-      {Array(6)
-        .fill(0)
-        .map((_, i) => (
-          <td key={i} className="px-4 py-2">
-            <Skeleton className="h-5 w-full" />
-          </td>
-        ))}
-    </tr>
-  );
 
   if (loading) {
     return (
@@ -461,9 +485,11 @@ export default function DashboardPage() {
         open={selectedDetail !== null}
         onOpenChange={(isOpen) => !isOpen && setSelectedDetail(null)}
       >
-        <SheetContent className="w-full sm:max-w-lg">
+        <SheetContent className="w-full sm:max-w-lg px-10">
           <SheetHeader>
-            <SheetTitle>Detail Arsip: {selectedDetail?.namaPegawai}</SheetTitle>
+            <SheetTitle className="px-0!">
+              Detail Arsip: {selectedDetail?.namaPegawai}
+            </SheetTitle>
           </SheetHeader>
           {selectedDetail && (
             <div className="space-y-4 py-4">
@@ -489,7 +515,7 @@ export default function DashboardPage() {
               <div className="pt-4">
                 <h4 className="font-medium mb-2">Berkas SK</h4>
                 <iframe
-                  src={`https://docs.google.com/gview?url=${selectedDetail.berkas}&embedded=true`}
+                  src={getViewerUrl(selectedDetail.berkas)}
                   className="w-full h-[60vh] border rounded-md"
                 />
               </div>

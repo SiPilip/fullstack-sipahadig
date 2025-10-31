@@ -6,8 +6,8 @@ import AppSidebar from "@/app/components/sidebar";
 import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
-  title: "SIPAHADIG BENGKULU",
-  description: "Sistem Pengelolaan Arsip Lapas II Bengkulu",
+  title: "SIPAHADIG BENGKULU IIA",
+  description: "Sistem Pengelolaan Arsip Lapas Kelas IIA Bengkulu",
 };
 
 export default function RootLayout({
