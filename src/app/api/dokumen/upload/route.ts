@@ -34,19 +34,25 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
     const folderId = formData.get('folderId') as string | null;
+
+    if (!file || !folderId) {
+      return NextResponse.json({ error: 'File and Folder ID are required' }, { status: 400 });
+    }
+
+    // Check for optional data for dynamic naming
     const namaPegawai = formData.get('namaPegawai') as string | null;
     const nip = formData.get('nip') as string | null;
     const tanggalMulai = formData.get('tanggalMulai') as string | null;
 
-    if (!file || !folderId || !namaPegawai || !nip || !tanggalMulai) {
-      return NextResponse.json({ error: 'Incomplete data for file naming and upload' }, { status: 400 });
-    }
+    let finalFileName = file.name; // Default to original filename
 
-    // Create the dynamic filename
-    const date = new Date(tanggalMulai);
-    const formattedDate = `${date.getDate()}${[ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ][date.getMonth()]}`;
-    const fileExtension = file.name.split('.').pop();
-    const newFileName = `${namaPegawai}_${nip}_${formattedDate}.${fileExtension}`;
+    // If all required data for dynamic naming is present, create the new name
+    if (namaPegawai && nip && tanggalMulai) {
+        const date = new Date(tanggalMulai);
+        const formattedDate = `${date.getDate()}${[ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ][date.getMonth()]}`;
+        const fileExtension = file.name.split('.').pop();
+        finalFileName = `${namaPegawai}_${nip}_${formattedDate}.${fileExtension}`;
+    }
 
     oauth2Client.setCredentials({ refresh_token: user.googleRefreshToken });
     const drive = google.drive({ version: 'v3', auth: oauth2Client });
@@ -58,7 +64,7 @@ export async function POST(request: NextRequest) {
 
     const response = await drive.files.create({
         requestBody: {
-            name: newFileName, // Use the new dynamic name
+            name: finalFileName, // Use the final determined name
             parents: [folderId],
         },
         media: {

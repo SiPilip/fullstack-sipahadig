@@ -491,10 +491,8 @@ export default function DashboardPage() {
         onOpenChange={(isOpen) => !isOpen && setSelectedDetail(null)}
       >
         <SheetContent className="w-full sm:max-w-lg px-10">
-          <SheetHeader>
-            <SheetTitle className="px-0!">
-              Detail Arsip: {selectedDetail?.namaPegawai}
-            </SheetTitle>
+          <SheetHeader className="pl-0!">
+            <SheetTitle>Detail Arsip: {selectedDetail?.namaPegawai}</SheetTitle>
           </SheetHeader>
           {selectedDetail && (
             <div className="space-y-4 py-4">
