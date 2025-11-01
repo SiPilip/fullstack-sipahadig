@@ -14,6 +14,7 @@ import {
   Trash2,
   Edit,
   FileText,
+  FileClock,
 } from "lucide-react";
 import {
   Sheet,
@@ -280,48 +281,65 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Pegawai Aktif Dihukum
-            </CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{kpi.totalAktif}</div>
-          </CardContent>
+        <Card className="flex flex-row p-10">
+          <div className="bg-red-700 rounded-full p-5 flex items-center w-fit h-fit justify-center">
+            <AlertTriangle className="h-10 w-10 text-white mx-auto my-auto" />
+          </div>
+          <div className="w-full">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Pegawai Aktif Dihukum
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{kpi.totalAktif}</div>
+            </CardContent>
+          </div>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Selesai 30 Hari Terakhir
-            </CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{kpi.selesai30Hari}</div>
-          </CardContent>
+        <Card className="flex flex-row p-10">
+          <div className="bg-green-600 rounded-full p-5 flex items-center w-fit h-fit justify-center">
+            <CheckCircle className="h-10 w-10 text-white" />
+          </div>
+          <div className="w-full">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Hukuman Selesai 30 Hari Terakhir
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{kpi.selesai30Hari}</div>
+            </CardContent>
+          </div>
         </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Rincian Hukuman Aktif
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-xs text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <span>Ringan:</span>{" "}
-              <span className="font-bold">{kpi.rincianAktif.ringan || 0}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span>Sedang:</span>{" "}
-              <span className="font-bold">{kpi.rincianAktif.sedang || 0}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span>Berat:</span>{" "}
-              <span className="font-bold">{kpi.rincianAktif.berat || 0}</span>
-            </div>
-          </CardContent>
+        <Card className="flex flex-row p-10">
+          <div className="bg-yellow-600 rounded-full p-5 flex items-center w-fit h-fit justify-center">
+            <FileClock className="h-10 w-10 text-white" />
+          </div>
+          <div className="w-full">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">
+                Rincian Hukuman Aktif
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-xs text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <span>Ringan:</span>{" "}
+                <span className="font-bold">
+                  {kpi.rincianAktif.ringan || 0}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span>Sedang:</span>{" "}
+                <span className="font-bold">
+                  {kpi.rincianAktif.sedang || 0}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span>Berat:</span>{" "}
+                <span className="font-bold">{kpi.rincianAktif.berat || 0}</span>
+              </div>
+            </CardContent>
+          </div>
         </Card>
       </div>
 

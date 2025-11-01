@@ -45,8 +45,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar>
-      <SidebarHeader />
-      <SidebarContent>
+      <SidebarContent className="pt-5">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarGroup>

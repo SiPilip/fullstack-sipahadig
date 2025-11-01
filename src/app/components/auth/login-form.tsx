@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import Image from "next/image";
 import bgLogin from "@/../public/images/bg-lapas-bengkulu.png";
+import lapasBengkuluLogo from "@/../public/images/lapas-bengkulu.png";
 
 export function LoginForm({
   className,
@@ -60,54 +61,70 @@ export function LoginForm({
         <Image
           src={bgLogin}
           fill
-          className="object-cover opacity-50"
+          className="object-cover opacity-50 "
           alt="bg-login"
         />
       </div>
-      <Card className="z-50">
-        <CardHeader>
-          <CardTitle className="leading-4 text-lg">
-            Anda memasuki Sistem Pengelolaan Arsip Lembaga Pemasyarakatan
-            Kelas IIA Bengkulu
-          </CardTitle>
-          <CardDescription>
-            Harap masukkan identitas autoritas anda!
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit}>
-            <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </Field>
-              <Field>
-                <div className="flex items-center">
-                  <FieldLabel htmlFor="password">Kata Sandi</FieldLabel>
-                </div>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </Field>
-              <Field>
-                <Button type="submit" disabled={loading}>
-                  {loading ? "Harap tunggu..." : "Masuk"}
-                </Button>
-              </Field>
-            </FieldGroup>
-          </form>
-        </CardContent>
+      <Card className="z-50 flex flex-row gap-0 items-center w-full py-12 px-5">
+        <div className="w-2/5  flex items-center justify-center">
+          <div className="w-36 relative aspect-square " key={"logoimipas"}>
+            <Image
+              src={lapasBengkuluLogo}
+              fill
+              className="object-contain"
+              alt="logo1"
+            />
+          </div>
+        </div>
+        <div className="w-3/5">
+          <CardHeader className="mb-5">
+            <CardTitle className="leading-6! text-lg">
+              Anda memasuki Sistem Pengelolaan Arsip Lembaga Pemasyarakatan
+              Kelas IIA Bengkulu
+            </CardTitle>
+            <CardDescription>
+              Harap masukkan identitas autoritas anda!
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit}>
+              <FieldGroup>
+                <Field>
+                  <FieldLabel htmlFor="email">Email</FieldLabel>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="m@example.com"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </Field>
+                <Field>
+                  <div className="flex items-center">
+                    <FieldLabel htmlFor="password">Kata Sandi</FieldLabel>
+                  </div>
+                  <Input
+                    id="password"
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </Field>
+                <Field>
+                  <Button
+                    type="submit"
+                    disabled={loading}
+                    className="bg-[#1b1d55] rounded-none!"
+                  >
+                    {loading ? "Harap tunggu..." : "Masuk"}
+                  </Button>
+                </Field>
+              </FieldGroup>
+            </form>
+          </CardContent>
+        </div>
       </Card>
     </div>
   );
