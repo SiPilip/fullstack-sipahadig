@@ -68,12 +68,19 @@ export async function PUT(request: NextRequest, { params }: RouteContext) {
       return NextResponse.json({ error: "Invalid validation" }, { status: 400 });
     }
 
-    const { berkas, ...restOfData } = validation.data;
+    const { namaPegawai, nip, tanggalMulaiHukuman, tanggalAkhirHukuman, keteranganHukdis, berkas } = validation.data;
     const embeddableLink = convertGoogleDriveLink(berkas);
 
     const updatedArsip = await prisma.arsipHukdis.update({
       where: { id },
-      data: { ...restOfData, berkas: embeddableLink },
+      data: { 
+        namaPegawai, 
+        nip, 
+        tanggalMulaiHukuman: new Date(tanggalMulaiHukuman),
+        tanggalAkhirHukuman: new Date(tanggalAkhirHukuman),
+        keteranganHukdis,
+        berkas: embeddableLink 
+      },
     });
     return NextResponse.json(updatedArsip);
   } catch (error: any) {
