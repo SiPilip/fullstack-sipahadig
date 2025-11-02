@@ -35,6 +35,8 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 
+import * as XLSX from "xlsx";
+
 function SkeletonRow() {
   return (
     <tr className="border-b">
@@ -179,6 +181,15 @@ export default function DashboardPage() {
       toast.error("Tidak ada data untuk diekspor.");
       return;
     }
+
+    // 1. Create a new workbook
+    const wb = XLSX.utils.book_new();
+    const title = `Laporan Hukuman Disiplin - ${
+      activeTab.charAt(0).toUpperCase() + activeTab.slice(1)
+    }`;
+    const exportDate = `Diekspor pada: ${new Date().toLocaleString("id-ID")}`;
+
+    // 2. Format data for the worksheet
     const headers = [
       "NIP",
       "Nama Pegawai",
@@ -186,31 +197,58 @@ export default function DashboardPage() {
       "Tanggal Akhir",
       "Keterangan",
     ];
-    const csvContent = [
-      headers.join(","),
-      ...data.map((item) =>
-        [
-          item.nip || "",
-          item.namaPegawai,
-          new Date(item.tanggalMulaiHukuman).toLocaleDateString("id-ID"),
-          new Date(item.tanggalAkhirHukuman).toLocaleDateString("id-ID"),
-          item.keteranganHukdis,
-        ].join(",")
+    const body = data.map((item) => ({
+      NIP: item.nip || "-",
+      "Nama Pegawai": item.namaPegawai,
+      "Tanggal Mulai": new Date(item.tanggalMulaiHukuman).toLocaleDateString(
+        "id-ID"
       ),
-    ].join("\n");
-    const blob = new Blob(["\uFEFF" + csvContent], {
-      type: "text/csv;charset=utf-8;",
+      "Tanggal Akhir": new Date(item.tanggalAkhirHukuman).toLocaleDateString(
+        "id-ID"
+      ),
+      Keterangan: item.keteranganHukdis,
+    }));
+
+    // 3. Create the worksheet with title and headers
+    const ws = XLSX.utils.aoa_to_sheet([
+      [title],
+      [exportDate],
+      headers,
+      ...body.map((item) => [
+        item.NIP,
+        item["Nama Pegawai"],
+        item["Tanggal Mulai"],
+        item["Tanggal Akhir"],
+        item.Keterangan,
+      ]),
+    ]);
+
+    // 4. Styling and Column Widths
+    const headerStyle = {
+      font: { bold: true },
+      fill: { fgColor: { rgb: "E0E0E0" } },
+    };
+    const cols = Object.keys(body[0] || {});
+    const colWidths = cols.map((key) => {
+      const maxLength = Math.max(
+        ...body.map((row) => String(row[key as keyof typeof row]).length),
+        key.length
+      );
+      return { wch: maxLength + 2 }; // +2 for padding
     });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute(
-      "download",
-      `arsip_${activeTab}_${new Date().toISOString().split("T")[0]}.csv`
-    );
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+
+    ws["!cols"] = colWidths;
+    ws["A1"].s = { font: { bold: true, sz: 16 } }; // Title style
+    ["A3", "B3", "C3", "D3", "E3"].forEach((cell) => {
+      ws[cell].s = headerStyle;
+    });
+
+    // 5. Append worksheet to workbook and download
+    XLSX.utils.book_append_sheet(wb, ws, "Laporan");
+    const fileName = `Laporan_Hukdis_${activeTab}_${
+      new Date().toISOString().split("T")[0]
+    }.xlsx`;
+    XLSX.writeFile(wb, fileName);
   };
 
   const getViewerUrl = (rawUrl: string | null | undefined) => {
