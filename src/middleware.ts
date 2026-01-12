@@ -8,7 +8,7 @@ export async function middleware(request: NextRequest) {
   const tokenCookie = request.cookies.get('sipahadig-token');
   const { pathname } = request.nextUrl;
 
-  // New rule: Redirect root path to /login
+  // Redirect root path to /login
   if (pathname === '/') {
     return NextResponse.redirect(new URL('/login', request.url));
   }
