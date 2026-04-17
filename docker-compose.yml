@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sipahadig_app
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+      # Ubah URL ini agar mengarah ke mount volume kita
+      - DATABASE_URL=file:/app/prisma/data/dev.db
+      # Masukkan .env untuk google auth dll di sini, atau buat file .env terpisah
+    volumes:
+      # Menggunakan named volume docker agar aman dari masalah permission Linux (chown)
+      - sipahadig_db:/app/prisma/data
+
+  nginx:
+    image: nginx:alpine
+    container_name: sipahadig_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      - app
+
+volumes:
+  # Volume khusus untuk memastikan database SQLite tetap aman ketika container di-restart
+  sipahadig_db:
