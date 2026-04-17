@@ -8,8 +8,11 @@ WORKDIR /app
 # Copy package and prisma definition
 COPY package.json package-lock.json* ./
 COPY prisma ./prisma/
-# Install all dependencies
-RUN npm ci
+# Install all dependencies with network resilience
+RUN npm config set fetch-retries 5 \
+    && npm config set fetch-retry-mintimeout 20000 \
+    && npm config set fetch-retry-maxtimeout 120000 \
+    && npm ci
 
 # 2. Build the app
 FROM base AS builder
